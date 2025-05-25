@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flight Countdown</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    input[type="datetime-local"] {
+      padding: 12px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      width: 100%;
+      margin-bottom: 20px;
+      outline: none;
+    }
+
+    button {
+      padding: 12px 30px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      background-color: #ffffff;
+      color: #1e3c72;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #e2e2e2;
+    }
+
+    .countdown {
+      font-size: 2rem;
+      margin-top: 30px;
+      font-weight: 500;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 20px;
+      font-size: 0.9rem;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Flight Countdown</h1>
+    <input type="datetime-local" id="flightTime">
+    <button onclick="startCountdown()">Start Countdown</button>
+    <div class="countdown" id="countdown"></div>
+  </div>
+  <div class="footer">Made with ❤️ for your journey</div>
+
+  <script>
+    let countdownInterval;
+
+    function startCountdown() {
+      clearInterval(countdownInterval);
+
+      const flightInput = document.getElementById("flightTime").value;
+      const flightTime = new Date(flightInput);
+
+      countdownInterval = setInterval(() => {
+        const now = new Date();
+        const timeLeft = flightTime - now;
+
+        if (timeLeft <= 0) {
+          document.getElementById("countdown").innerHTML = "✈️ Time for your flight! Safe travels!";
+          clearInterval(countdownInterval);
+          return;
+        }
+
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((timeLeft / (1000 * 60)) % 60);
+        const seconds = Math.floor((timeLeft / 1000) % 60);
+
+        document.getElementById("countdown").innerHTML =
+          `${days}d ${hours.toString().padStart(2, '0')}h:` +
+          `${minutes.toString().padStart(2, '0')}m:` +
+          `${seconds.toString().padStart(2, '0')}s remaining`;
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
