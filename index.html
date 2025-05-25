@@ -23,13 +23,27 @@
       min-height: 100vh;
       padding: 40px 20px;
       text-align: center;
+      overflow: hidden;
+      transition: background 0.5s, color 0.5s;
+    }
+
+    /* Banner */
+    .banner {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      text-align: center;
+      padding: 10px 0;
+      font-weight: 600;
+      z-index: 5;
     }
 
     h1 {
       font-size: 3rem;
       margin-bottom: 20px;
       font-weight: 600;
-      color: #ffffff;
     }
 
     .container {
@@ -43,6 +57,8 @@
       display: flex;
       flex-direction: column;
       gap: 20px;
+      position: relative;
+      z-index: 2;
     }
 
     label {
@@ -52,21 +68,14 @@
     }
 
     input[type="datetime-local"],
-    input[type="text"] {
+    input[type="text"],
+    select {
       padding: 14px;
       font-size: 1rem;
       border: none;
       border-radius: 12px;
       width: 100%;
       outline: none;
-    }
-
-    select {
-      padding: 12px;
-      font-size: 1rem;
-      border-radius: 12px;
-      border: none;
-      width: 100%;
     }
 
     button {
@@ -86,9 +95,49 @@
     }
 
     .countdown {
-      font-size: 2rem;
-      font-weight: 500;
-      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 600;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .digit {
+      background: #ffffff;
+      color: #2c5364;
+      border-radius: 10px;
+      padding: 8px 10px;
+      min-width: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.9rem;
+      transition: transform 0.6s ease;
+    }
+
+    .flip {
+      animation: flip 0.6s ease forwards;
+    }
+
+    @keyframes flip {
+      0% { transform: rotateX(0deg); }
+      100% { transform: rotateX(360deg); }
+    }
+
+    .progress-bar {
+      height: 20px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      width: 0%;
+      transition: width 1s linear;
     }
 
     .footer {
@@ -96,9 +145,111 @@
       font-size: 0.9rem;
       opacity: 0.7;
     }
+
+    .flight-date {
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+
+    .moving-clock {
+      position: absolute;
+      top: 100px;
+      left: 100px;
+      font-size: 2rem;
+      font-weight: bold;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 10px 20px;
+      border-radius: 10px;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Theme Selector */
+    .theme-switcher {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 99;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Theme buttons */
+    .theme-switcher button,
+    .timezone-switcher button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.1);
+      color: inherit;
+      transition: background 0.3s ease;
+    }
+    .theme-switcher button:hover,
+    .timezone-switcher button:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Timezone buttons container */
+    .timezone-switcher {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* Light Theme */
+    .light-theme {
+      background: linear-gradient(135deg, #f0f0f0, #ffffff);
+      color: #000;
+    }
+
+    .light-theme .container {
+      background: rgba(0, 0, 0, 0.05);
+      color: #000;
+    }
+
+    .light-theme .digit {
+      background: #000;
+      color: #fff;
+    }
+
+    .light-theme .moving-clock {
+      background: rgba(0, 0, 0, 0.15);
+      color: #000;
+    }
+
+    /* Dark Theme */
+    .dark-theme {
+      background: #000000;
+      color: #ffffff;
+    }
+
+    .dark-theme .container {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .dark-theme .digit {
+      background: #ffffff;
+      color: #000000;
+    }
+
+    .dark-theme .moving-clock {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
   </style>
 </head>
 <body>
+
+  <div class="banner">✈️ Flight Countdown Banner</div>
+  <div id="movingClock" class="moving-clock"></div>
+
   <div class="container">
     <h1>Flight Countdown ⏳</h1>
 
@@ -108,38 +259,86 @@
     <label for="flightTime">Flight Time</label>
     <input type="datetime-local" id="flightTime" />
 
-    <label for="timezone">Time Zone</label>
-    <select id="timezone">
-      <option value="local">Your Local Time</option>
-      <option value="UTC">UTC Time</option>
-    </select>
+    <label>Time Zone</label>
+    <div class="timezone-switcher">
+      <button onclick="setTimezone('local')" id="tzLocalBtn">Your Local Time</button>
+      <button onclick="setTimezone('UTC')" id="tzUTCBtn">UTC Time</button>
+    </div>
 
     <button onclick="startCountdown()">Start Countdown</button>
 
     <div class="countdown" id="countdown"></div>
+    <div class="flight-date" id="flightDate"></div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
   </div>
 
   <div class="footer">Made with ❤️ for your journey. Stay safe and on time ✈️</div>
 
+  <!-- Theme Switcher -->
+  <div class="theme-switcher">
+    <span>Theme:</span>
+    <button onclick="changeTheme('none')" id="themeNoneBtn">None</button>
+    <button onclick="changeTheme('light')" id="themeLightBtn">Light</button>
+    <button onclick="changeTheme('dark')" id="themeDarkBtn">Dark</button>
+  </div>
+
   <script>
     let countdownInterval;
+    let flightTime;
+    let initialTime;
+    let previousDigits = [];
+    let selectedTimezone = 'local'; // default timezone
+
+    function updateDigits(id, value) {
+      const container = document.getElementById(id);
+      const chars = value.split('');
+      container.innerHTML = '';
+      chars.forEach((char, index) => {
+        const span = document.createElement('span');
+        span.className = 'digit';
+        if (previousDigits[index] !== char) {
+          span.classList.add('flip');
+        }
+        span.textContent = char;
+        container.appendChild(span);
+      });
+      previousDigits = chars;
+    }
+
+    function setTimezone(tz) {
+      selectedTimezone = tz;
+      // Visually highlight selected button
+      document.getElementById('tzLocalBtn').style.backgroundColor = tz === 'local' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)';
+      document.getElementById('tzUTCBtn').style.backgroundColor = tz === 'UTC' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)';
+    }
+
+    // Initialize timezone button styles on load
+    window.onload = () => {
+      setTimezone(selectedTimezone);
+      changeTheme('none');  // default theme none
+    };
 
     function startCountdown() {
       clearInterval(countdownInterval);
 
       const destination = document.getElementById("destination").value;
       const flightInput = document.getElementById("flightTime").value;
-      const timezone = document.getElementById("timezone").value;
 
       if (!flightInput) {
         alert("Please select your flight time.");
         return;
       }
 
-      let flightTime = new Date(flightInput);
-      if (timezone === "UTC") {
+      flightTime = new Date(flightInput);
+      if (selectedTimezone === "UTC") {
         flightTime = new Date(flightTime.toUTCString());
       }
+      initialTime = flightTime - new Date();
+
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById("flightDate").textContent = `Flight Date: ${flightTime.toLocaleDateString(undefined, options)}`;
 
       countdownInterval = setInterval(() => {
         const now = new Date();
@@ -147,7 +346,11 @@
 
         if (timeLeft <= 0) {
           document.getElementById("countdown").innerHTML = `✈️ It's time for your flight to ${destination || 'your destination'}! Safe travels!`;
+          document.getElementById("progressFill").style.width = '100%';
+          document.getElementById("flightDate").textContent = '';
           clearInterval(countdownInterval);
+          const utterance = new SpeechSynthesisUtterance(`It's time for your flight to ${destination || 'your destination'}. Safe travels!`);
+          speechSynthesis.speak(utterance);
           return;
         }
 
@@ -156,12 +359,53 @@
         const minutes = Math.floor((timeLeft / (1000 * 60)) % 60);
         const seconds = Math.floor((timeLeft / 1000) % 60);
 
-        document.getElementById("countdown").innerHTML =
-          `${destination ? `✈️ Countdown to <strong>${destination}</strong><br><br>` : ''}` +
-          `${days}d ${hours.toString().padStart(2, '0')}h:` +
-          `${minutes.toString().padStart(2, '0')}m:` +
-          `${seconds.toString().padStart(2, '0')}s remaining`;
+        const displayTime = `${days}d:${String(hours).padStart(2, '0')}h:${String(minutes).padStart(2, '0')}m:${String(seconds).padStart(2, '0')}s`;
+        updateDigits('countdown', displayTime);
+
+        const progress = 100 - ((timeLeft / initialTime) * 100);
+        document.getElementById("progressFill").style.width = `${Math.min(progress, 100)}%`;
       }, 1000);
+    }
+
+    // Bouncing Clock
+    const clock = document.getElementById('movingClock');
+    let x = 100, y = 100;
+    let dx = 2, dy = 2;
+
+    function updateMovingClock() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-US', { hour12: false });
+      clock.textContent = timeStr;
+
+      const clockWidth = clock.offsetWidth;
+      const clockHeight = clock.offsetHeight;
+      const maxX = window.innerWidth - clockWidth;
+      const maxY = window.innerHeight - clockHeight;
+
+      x += dx;
+      y += dy;
+
+      if (x <= 0 || x >= maxX) dx *= -1;
+      if (y <= 0 || y >= maxY) dy *= -1;
+
+      clock.style.left = x + 'px';
+      clock.style.top = y + 'px';
+
+      requestAnimationFrame(updateMovingClock);
+    }
+
+    requestAnimationFrame(updateMovingClock);
+
+    // Theme switch
+    function changeTheme(theme) {
+      document.body.classList.remove('light-theme', 'dark-theme');
+      if (theme === 'light') document.body.classList.add('light-theme');
+      else if (theme === 'dark') document.body.classList.add('dark-theme');
+
+      // Visually highlight selected theme button
+      document.getElementById('themeNoneBtn').style.backgroundColor = theme === 'none' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)';
+      document.getElementById('themeLightBtn').style.backgroundColor = theme === 'light' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)';
+      document.getElementById('themeDarkBtn').style.backgroundColor = theme === 'dark' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)';
     }
   </script>
 </body>
