@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Flight Countdown</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
@@ -14,14 +14,14 @@
 
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       color: #ffffff;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      padding: 20px;
+      min-height: 100vh;
+      padding: 40px 20px;
       text-align: center;
     }
 
@@ -29,66 +29,97 @@
       font-size: 3rem;
       margin-bottom: 20px;
       font-weight: 600;
+      color: #ffffff;
     }
 
     .container {
       background: rgba(255, 255, 255, 0.1);
       border-radius: 20px;
-      padding: 30px;
-      max-width: 500px;
+      padding: 40px;
+      max-width: 600px;
       width: 100%;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
 
-    input[type="datetime-local"] {
-      padding: 12px;
+    label {
+      text-align: left;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    input[type="datetime-local"],
+    input[type="text"] {
+      padding: 14px;
       font-size: 1rem;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       width: 100%;
-      margin-bottom: 20px;
       outline: none;
     }
 
+    select {
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 12px;
+      border: none;
+      width: 100%;
+    }
+
     button {
-      padding: 12px 30px;
+      padding: 14px 30px;
       font-size: 1rem;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       background-color: #ffffff;
-      color: #1e3c72;
+      color: #203a43;
       font-weight: 600;
       cursor: pointer;
-      transition: 0.3s ease;
+      transition: background 0.3s ease;
     }
 
     button:hover {
-      background-color: #e2e2e2;
+      background-color: #f1f1f1;
     }
 
     .countdown {
       font-size: 2rem;
-      margin-top: 30px;
       font-weight: 500;
+      margin-top: 20px;
     }
 
     .footer {
-      position: absolute;
-      bottom: 20px;
+      margin-top: 40px;
       font-size: 0.9rem;
-      opacity: 0.6;
+      opacity: 0.7;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Flight Countdown</h1>
-    <input type="datetime-local" id="flightTime">
+    <h1>Flight Countdown ⏳</h1>
+
+    <label for="destination">Destination</label>
+    <input type="text" id="destination" placeholder="e.g. Dubai, London, Tokyo" />
+
+    <label for="flightTime">Flight Time</label>
+    <input type="datetime-local" id="flightTime" />
+
+    <label for="timezone">Time Zone</label>
+    <select id="timezone">
+      <option value="local">Your Local Time</option>
+      <option value="UTC">UTC Time</option>
+    </select>
+
     <button onclick="startCountdown()">Start Countdown</button>
+
     <div class="countdown" id="countdown"></div>
   </div>
-  <div class="footer">Made with ❤️ for your journey</div>
+
+  <div class="footer">Made with ❤️ for your journey. Stay safe and on time ✈️</div>
 
   <script>
     let countdownInterval;
@@ -96,15 +127,26 @@
     function startCountdown() {
       clearInterval(countdownInterval);
 
+      const destination = document.getElementById("destination").value;
       const flightInput = document.getElementById("flightTime").value;
-      const flightTime = new Date(flightInput);
+      const timezone = document.getElementById("timezone").value;
+
+      if (!flightInput) {
+        alert("Please select your flight time.");
+        return;
+      }
+
+      let flightTime = new Date(flightInput);
+      if (timezone === "UTC") {
+        flightTime = new Date(flightTime.toUTCString());
+      }
 
       countdownInterval = setInterval(() => {
         const now = new Date();
         const timeLeft = flightTime - now;
 
         if (timeLeft <= 0) {
-          document.getElementById("countdown").innerHTML = "✈️ Time for your flight! Safe travels!";
+          document.getElementById("countdown").innerHTML = `✈️ It's time for your flight to ${destination || 'your destination'}! Safe travels!`;
           clearInterval(countdownInterval);
           return;
         }
@@ -115,6 +157,7 @@
         const seconds = Math.floor((timeLeft / 1000) % 60);
 
         document.getElementById("countdown").innerHTML =
+          `${destination ? `✈️ Countdown to <strong>${destination}</strong><br><br>` : ''}` +
           `${days}d ${hours.toString().padStart(2, '0')}h:` +
           `${minutes.toString().padStart(2, '0')}m:` +
           `${seconds.toString().padStart(2, '0')}s remaining`;
